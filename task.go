@@ -1,5 +1,9 @@
 package main
 
+const (
+	MaxPID = 4194303 // equal to config of /proc/sys/kernel/pid_max
+)
+
 type TState int
 
 const (
@@ -55,11 +59,20 @@ type Instruction struct {
 }
 
 type Task struct {
-	PID         string
+	PID         int
 	State       TState
 	SInfo       *SchedulingInformation
 	Code        []Instruction
 	ProgCounter int
 }
 
-type TaskTable map[string]*Task
+type TaskTable map[int]*Task
+
+func (tab TaskTable) findSmallestAvailablePID() int {
+	for i := 0; i < MaxPID; i++ {
+		if tab[i] == nil {
+			return i
+		}
+	}
+	return -1
+}
