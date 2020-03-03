@@ -7,6 +7,7 @@ func main() {
 	}
 
 	t := &Task{
+		Name: "Chrome",
 		SInfo: &SchedulingInformation{
 			Priority: 1,
 		},

@@ -60,6 +60,7 @@ type Instruction struct {
 
 type Task struct {
 	PID         int
+	Name        string //In real life, this should be the bootstrap command of this task
 	State       TState
 	SInfo       *SchedulingInformation
 	Code        []Instruction
