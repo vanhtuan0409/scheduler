@@ -1,2 +1,2 @@
 run:
-	go run *.go
+	go run cmd/main/main.go
