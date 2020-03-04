@@ -10,8 +10,9 @@ var (
 )
 
 type Kernel struct {
-	PTable TaskTable
-	Timer  *time.Ticker
+	PTable   TaskTable
+	Timer    *time.Ticker
+	exitChan chan struct{}
 }
 
 func (k *Kernel) Initialize() error {
@@ -21,7 +22,18 @@ func (k *Kernel) Initialize() error {
 		return err
 	}
 	k.Timer = time.NewTicker(ClockTickInterval)
+	k.exitChan = make(chan struct{})
 	return nil
+}
+
+func (k *Kernel) Halt() {
+	// do halting logic here
+	log.Println("Prepare for halting")
+	k.exitChan <- struct{}{}
+}
+
+func (k *Kernel) Exited() <-chan struct{} {
+	return k.exitChan
 }
 
 func (k *Kernel) NewTask(t *Task) error {
