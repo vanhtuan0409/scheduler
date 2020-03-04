@@ -61,7 +61,6 @@ schedulingLoop:
 		select {
 
 		case <-kern.Core1.Timer.C:
-			log.Printf("[CPU] %s\n", kern.Core1.Report())
 			if kern.Core1.Work() {
 				kern.CleanupRunningTask()
 			}
