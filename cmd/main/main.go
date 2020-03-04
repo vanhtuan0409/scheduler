@@ -16,7 +16,7 @@ func main() {
 	}
 
 	// Set option for kernel. In real life, this is usually done via sysctl
-	kern.Options.DisableLongTermScheduler = true
+	kern.Options.DisableLongTermScheduler = false
 
 	// Add simple task
 	t := &scheduler.Task{
@@ -53,12 +53,13 @@ schedulingLoop:
 	for {
 		select {
 		case <-kern.CPUTimer.C:
-			log.Println("CPU is doing its job")
+			log.Println("[Info] CPU is doing its job")
 		case <-kern.ShortTermScheduleTimer.C:
-			log.Println("Short-term scheduler is woke up. Do scheduling")
+			log.Println("[Info] Short-term scheduler is woke up. Do scheduling")
 		case <-kern.LongTermScheduleTimer.C:
 			if !kern.Options.DisableLongTermScheduler {
-				log.Println("Long-term scheduler is woke up. Do scheduling")
+				log.Println("[Info] Long-term scheduler is woke up. Do scheduling")
+				kern.Scheduler.LongTermSchedule()
 			}
 		case <-kern.Exited():
 			break schedulingLoop

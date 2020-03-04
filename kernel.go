@@ -41,7 +41,7 @@ func (k *Kernel) Initialize() error {
 
 func (k *Kernel) Halt() {
 	// do halting logic here
-	log.Println("Prepare for halting")
+	log.Println("[Kern] Prepare for halting")
 	k.exitChan <- struct{}{}
 }
 
@@ -57,7 +57,7 @@ func (k *Kernel) NewTask(t *Task) error {
 	t.PID = newPID
 	t.State = StateNew
 	k.PTable[newPID] = t
-	log.Printf("[Info] A new process created. Name: %s. PID: %d\n", t.Name, newPID)
+	log.Printf("[Kern] A new process created. Name: %s. PID: %d\n", t.Name, newPID)
 	if newPID == 0 {
 		return nil
 	}

@@ -8,6 +8,8 @@ import (
 type Queue interface {
 	Name() string
 	Enqueue(*Task)
+	Dequeue(*Task)
+	Items() []*Task
 }
 
 type NamedQueue struct {
@@ -18,6 +20,7 @@ func (q NamedQueue) Name() string {
 	return q.name
 }
 
+// Implement FIFO Queue
 type FifoQueue struct {
 	NamedQueue
 	queue []*Task
@@ -34,6 +37,20 @@ func NewFifoQueue(name string) *FifoQueue {
 func (q *FifoQueue) Enqueue(t *Task) {
 	q.Lock()
 	defer q.Unlock()
-	log.Printf("[Info] Add task name %s to %s queue", t.Name, q.Name())
+	log.Printf("[Scheduler] Add task %d (%s) to %s queue", t.PID, t.Name, q.Name())
 	q.queue = append(q.queue, t)
+}
+
+func (q *FifoQueue) Dequeue(t *Task) {
+	tIndex := -1
+	for idx, i := range q.queue {
+		if i.PID == t.PID {
+			tIndex = idx
+		}
+	}
+	q.queue = append(q.queue[:tIndex], q.queue[tIndex+1:]...)
+}
+
+func (q *FifoQueue) Items() []*Task {
+	return q.queue
 }
