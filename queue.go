@@ -37,7 +37,7 @@ func NewFifoQueue(name string) *FifoQueue {
 func (q *FifoQueue) Enqueue(t *Task) {
 	q.Lock()
 	defer q.Unlock()
-	log.Printf("[Scheduler] Add task %d (%s) to %s queue", t.PID, t.Name, q.Name())
+	log.Printf("[Scheduler] Add task %s to %s queue", t.ShortDescription(), q.Name())
 	q.queue = append(q.queue, t)
 }
 

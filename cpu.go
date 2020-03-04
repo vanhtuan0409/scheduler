@@ -23,6 +23,12 @@ func NewCPU() *CPU {
 
 func (c *CPU) Report() string {
 	if !c.IsFree() {
+		currInstruction := c.findCurrentInstruction()
+		if currInstruction.Type == CPUBounded {
+			return fmt.Sprintf("CPU is running. Task %s. Program Counter: %d/%d", c.RunningTask.ShortDescription(), c.progCounter, c.RunningTask.TotalDuration())
+		} else {
+			return fmt.Sprintf("CPU is idle, waiting for I/O. Task %s. Program Counter: %d/%d", c.RunningTask.ShortDescription(), c.progCounter, c.RunningTask.TotalDuration())
+		}
 	}
 	return fmt.Sprintf("CPU is free. No occupied task")
 }
@@ -38,8 +44,21 @@ func (c *CPU) Load(t *Task) error {
 
 func (c *CPU) Work() {
 	c.progCounter += 1
+	if c.progCounter > c.RunningTask.TotalDuration() {
+	}
 }
 
 func (c *CPU) IsFree() bool {
 	return c.RunningTask == nil
+}
+
+func (c *CPU) findCurrentInstruction() *Instruction {
+	counter := c.progCounter
+	for _, i := range c.RunningTask.Code {
+		if counter > i.Duration {
+			counter -= i.Duration
+		}
+		return &i
+	}
+	return nil
 }

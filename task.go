@@ -1,5 +1,7 @@
 package scheduler
 
+import "fmt"
+
 const (
 	MaxPID = 4194303 // equal to config of /proc/sys/kernel/pid_max
 )
@@ -65,6 +67,18 @@ type Task struct {
 	SInfo       *SchedulingInformation
 	Code        []Instruction
 	ProgCounter int
+}
+
+func (t *Task) ShortDescription() string {
+	return fmt.Sprintf("pid %d (%s)", t.PID, t.Name)
+}
+
+func (t *Task) TotalDuration() int {
+	res := 0
+	for _, i := range t.Code {
+		res += i.Duration
+	}
+	return res
 }
 
 type TaskTable map[int]*Task
