@@ -10,9 +10,10 @@ var (
 )
 
 type Kernel struct {
-	PTable   TaskTable
-	Timer    *time.Ticker
-	exitChan chan struct{}
+	PTable    TaskTable
+	Timer     *time.Ticker
+	Scheduler *Scheduler
+	exitChan  chan struct{}
 }
 
 func (k *Kernel) Initialize() error {
@@ -21,6 +22,7 @@ func (k *Kernel) Initialize() error {
 	if err := k.NewTask(initProcess); err != nil {
 		return err
 	}
+	k.Scheduler = NewScheduler()
 	k.Timer = time.NewTicker(ClockTickInterval)
 	k.exitChan = make(chan struct{})
 	return nil
@@ -45,5 +47,11 @@ func (k *Kernel) NewTask(t *Task) error {
 	t.State = StateNew
 	k.PTable[newPID] = t
 	log.Printf("[Info] A new process created. Name: %s. PID: %d\n", t.Name, newPID)
+	if newPID == 0 {
+		return nil
+	}
+
+	// Perform queueing task to scheduler
+	k.Scheduler.NewQueue.Enqueue(t)
 	return nil
 }
