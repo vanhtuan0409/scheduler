@@ -48,7 +48,7 @@ func main() {
 
 	go func() {
 		<-c
-		log.Println("Receive halting signal")
+		log.Println("[Info] Receive halting signal")
 		kern.Halt()
 	}()
 
@@ -89,5 +89,5 @@ schedulingLoop:
 		}
 	}
 
-	log.Println("System shutdown")
+	log.Println("[Info] System shutdown")
 }
