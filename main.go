@@ -46,8 +46,12 @@ func main() {
 schedulingLoop:
 	for {
 		select {
-		case <-kern.Timer.C:
-			log.Println("Scheduler is wake up. Do scheduling")
+		case <-kern.CPUTimer.C:
+			log.Println("CPU is doing its job")
+		case <-kern.ShortTermScheduleTimer.C:
+			log.Println("Short-term scheduler is woke up. Do scheduling")
+		case <-kern.LongTermScheduleTimer.C:
+			log.Println("Long-term scheduler is woke up. Do scheduling")
 		case <-kern.Exited():
 			break schedulingLoop
 		}

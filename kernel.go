@@ -7,13 +7,17 @@ import (
 
 var (
 	ClockTickInterval = time.Second
+	LongTermInterval  = 5 * time.Second
+	ShortTermInterval = 2 * time.Second
 )
 
 type Kernel struct {
-	PTable    TaskTable
-	Timer     *time.Ticker
-	Scheduler *Scheduler
-	exitChan  chan struct{}
+	PTable                 TaskTable
+	CPUTimer               *time.Ticker
+	ShortTermScheduleTimer *time.Ticker
+	LongTermScheduleTimer  *time.Ticker
+	Scheduler              *Scheduler
+	exitChan               chan struct{}
 }
 
 func (k *Kernel) Initialize() error {
@@ -23,7 +27,9 @@ func (k *Kernel) Initialize() error {
 		return err
 	}
 	k.Scheduler = NewScheduler()
-	k.Timer = time.NewTicker(ClockTickInterval)
+	k.CPUTimer = time.NewTicker(ClockTickInterval)
+	k.ShortTermScheduleTimer = time.NewTicker(ShortTermInterval)
+	k.LongTermScheduleTimer = time.NewTicker(LongTermInterval)
 	k.exitChan = make(chan struct{})
 	return nil
 }
