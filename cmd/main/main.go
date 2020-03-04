@@ -66,7 +66,7 @@ schedulingLoop:
 				// CPU finished a task
 				// Should switch another in
 				task := core1.Unload()
-				task.State = scheduler.StateTerminated
+				kern.CleanupTask(task)
 			}
 
 		case <-kern.ShortTermScheduleTimer.C:

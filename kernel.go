@@ -68,3 +68,10 @@ func (k *Kernel) NewTask(t *Task) error {
 	}
 	return nil
 }
+
+func (k *Kernel) CleanupTask(t *Task) error {
+	t.State = StateTerminated
+	log.Printf("[Kern] Process %s finished. Cleaning its state\n", t.ShortDescription())
+	delete(k.PTable, t.PID)
+	return nil
+}
