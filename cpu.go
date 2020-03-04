@@ -42,8 +42,19 @@ func (c *CPU) Load(t *Task) error {
 	return nil
 }
 
-func (c *CPU) Work() {
-	c.progCounter += 1
+func (c *CPU) Unload() *Task {
+	task := c.RunningTask
+	task.ProgCounter = c.progCounter
+	c.RunningTask = nil
+	return task
+}
+
+func (c *CPU) Work() bool {
+	if !c.IsFree() {
+		c.progCounter += 1
+		return c.progCounter > c.RunningTask.TotalDuration()
+	}
+	return false
 }
 
 func (c *CPU) IsFree() bool {

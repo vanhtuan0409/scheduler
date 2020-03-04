@@ -59,9 +59,16 @@ func main() {
 schedulingLoop:
 	for {
 		select {
+
 		case <-core1.Timer.C:
 			log.Printf("[CPU] %s\n", core1.Report())
-			core1.Work()
+			if core1.Work() {
+				// CPU finished a task
+				// Should switch another in
+				task := core1.Unload()
+				task.State = scheduler.StateTerminated
+			}
+
 		case <-kern.ShortTermScheduleTimer.C:
 			if core1.IsFree() {
 				log.Println("[Info] Short-term scheduler is woke up. Do scheduling")
@@ -70,11 +77,13 @@ schedulingLoop:
 					core1.Load(selected)
 				}
 			}
+
 		case <-kern.LongTermScheduleTimer.C:
 			if !kern.Options.DisableLongTermScheduler {
 				log.Println("[Info] Long-term scheduler is woke up. Do scheduling")
 				kern.Scheduler.LongTermSchedule()
 			}
+
 		case <-kern.Exited():
 			break schedulingLoop
 		}

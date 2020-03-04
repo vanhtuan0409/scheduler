@@ -30,6 +30,7 @@ func (s *Scheduler) LongTermSchedule() {
 		t := s.NewQueue.Dequeue()
 		s.ReadyQueue.Enqueue(t)
 		t.State = StateReady
+		t.ProgCounter = 1
 		log.Printf("[Scheduler] Long-term scheduler moved task %s from %s queue to %s queue. Task state changed to %s\n", t.ShortDescription(), s.NewQueue.Name(), s.ReadyQueue.Name(), t.State)
 	}
 }
