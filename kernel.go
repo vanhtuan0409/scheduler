@@ -11,12 +11,17 @@ var (
 	ShortTermInterval = 2 * time.Second
 )
 
+type KernelOptions struct {
+	DisableLongTermScheduler bool
+}
+
 type Kernel struct {
 	PTable                 TaskTable
 	CPUTimer               *time.Ticker
 	ShortTermScheduleTimer *time.Ticker
 	LongTermScheduleTimer  *time.Ticker
 	Scheduler              *Scheduler
+	Options                KernelOptions
 	exitChan               chan struct{}
 }
 
@@ -58,6 +63,10 @@ func (k *Kernel) NewTask(t *Task) error {
 	}
 
 	// Perform queueing task to scheduler
-	k.Scheduler.NewQueue.Enqueue(t)
+	if k.Options.DisableLongTermScheduler {
+		k.Scheduler.ReadyQueue.Enqueue(t)
+	} else {
+		k.Scheduler.NewQueue.Enqueue(t)
+	}
 	return nil
 }

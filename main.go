@@ -13,6 +13,10 @@ func main() {
 		panic(err)
 	}
 
+	// Set option for kernel. In real life, this is usually done via sysctl
+	kern.Options.DisableLongTermScheduler = true
+
+	// Add simple task
 	t := &Task{
 		Name: "Chrome",
 		SInfo: &SchedulingInformation{
@@ -51,7 +55,9 @@ schedulingLoop:
 		case <-kern.ShortTermScheduleTimer.C:
 			log.Println("Short-term scheduler is woke up. Do scheduling")
 		case <-kern.LongTermScheduleTimer.C:
-			log.Println("Long-term scheduler is woke up. Do scheduling")
+			if !kern.Options.DisableLongTermScheduler {
+				log.Println("Long-term scheduler is woke up. Do scheduling")
+			}
 		case <-kern.Exited():
 			break schedulingLoop
 		}
