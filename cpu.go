@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -10,9 +11,9 @@ var (
 )
 
 type CPU struct {
-	RunningTask *Task
-	Timer       *time.Ticker
-	progCounter int
+	Instructions []InstructionType
+	Timer        *time.Ticker
+	progCounter  int
 }
 
 func NewCPU() *CPU {
@@ -22,53 +23,46 @@ func NewCPU() *CPU {
 }
 
 func (c *CPU) Report() string {
-	if !c.IsFree() {
-		currInstruction := c.findCurrentInstruction()
-		if currInstruction.Type == CPUBounded {
-			return fmt.Sprintf("CPU is running. Task %s. Program Counter: %d/%d", c.RunningTask.ShortDescription(), c.progCounter, c.RunningTask.TotalDuration())
-		} else {
-			return fmt.Sprintf("CPU is idle, waiting for I/O. Task %s. Program Counter: %d/%d", c.RunningTask.ShortDescription(), c.progCounter, c.RunningTask.TotalDuration())
-		}
+	instruction := c.fetchNextInstruction()
+	if instruction == nil {
+		return "CPU is idle"
+	} else if *instruction == CPUBounded {
+		return fmt.Sprintf("CPU is running. Program Counter: %d", c.progCounter)
+	} else if *instruction == IOBounded {
+		return fmt.Sprintf("CPU is idle, waiting for I/O. Program Counter: %d", c.progCounter)
+	} else {
+		return fmt.Sprintf("Error encountered. Exit instruction still occupied CPU. Should already triggered context switch")
 	}
-	return fmt.Sprintf("CPU is free. No occupied task")
 }
 
 func (c *CPU) Load(t *Task) error {
-	if c.RunningTask != nil {
-		return ErrCPUOccupied
+	c.Instructions = []InstructionType{}
+	for _, i := range t.Code {
+		if i.Type == Exit {
+			c.Instructions = append(c.Instructions, Exit)
+			continue
+		}
+		for j := 0; j < i.Duration; j++ {
+			c.Instructions = append(c.Instructions, i.Type)
+		}
 	}
-	c.RunningTask = t
 	c.progCounter = t.ProgCounter
 	return nil
 }
 
-func (c *CPU) Unload() *Task {
-	task := c.RunningTask
-	task.ProgCounter = c.progCounter
-	c.RunningTask = nil
-	return task
-}
-
 func (c *CPU) Work() bool {
-	if !c.IsFree() {
-		c.progCounter += 1
-		return c.progCounter > c.RunningTask.TotalDuration()
+	c.progCounter += 1
+	instruction := c.fetchNextInstruction()
+	if instruction != nil && *instruction == Exit {
+		log.Printf("[CPU] Encountered Exit instruction. Return control back to kernel")
+		return true
 	}
 	return false
 }
 
-func (c *CPU) IsFree() bool {
-	return c.RunningTask == nil
-}
-
-func (c *CPU) findCurrentInstruction() *Instruction {
-	counter := c.progCounter
-	for _, i := range c.RunningTask.Code {
-		if counter > i.Duration {
-			counter -= i.Duration
-		} else {
-			return &i
-		}
+func (c *CPU) fetchNextInstruction() *InstructionType {
+	if len(c.Instructions) == 0 || c.progCounter >= len(c.Instructions) {
+		return nil
 	}
-	return &c.RunningTask.Code[len(c.RunningTask.Code)-1]
+	return &c.Instructions[c.progCounter]
 }

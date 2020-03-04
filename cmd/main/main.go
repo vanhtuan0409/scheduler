@@ -10,9 +10,6 @@ import (
 )
 
 func main() {
-	// Initialize CPU
-	core1 := scheduler.NewCPU()
-
 	// Initialize Kernel
 	kern := new(scheduler.Kernel)
 	if err := kern.Initialize(); err != nil {
@@ -35,6 +32,9 @@ func main() {
 			scheduler.Instruction{
 				Type:     scheduler.IOBounded,
 				Duration: 2,
+			},
+			scheduler.Instruction{
+				Type: scheduler.Exit,
 			},
 		},
 	}
@@ -60,21 +60,18 @@ schedulingLoop:
 	for {
 		select {
 
-		case <-core1.Timer.C:
-			log.Printf("[CPU] %s\n", core1.Report())
-			if core1.Work() {
-				// CPU finished a task
-				// Should switch another in
-				task := core1.Unload()
-				kern.CleanupTask(task)
+		case <-kern.Core1.Timer.C:
+			log.Printf("[CPU] %s\n", kern.Core1.Report())
+			if kern.Core1.Work() {
+				kern.CleanupRunningTask()
 			}
 
 		case <-kern.ShortTermScheduleTimer.C:
-			if core1.IsFree() {
+			if kern.IsCPUFree() {
 				log.Println("[Info] Short-term scheduler is woke up. Do scheduling")
-				selected := kern.Scheduler.ShortTermSchedule()
-				if selected != nil {
-					core1.Load(selected)
+				nextTask := kern.Scheduler.ShortTermSchedule()
+				if nextTask != nil {
+					kern.ContextSwitch(nextTask)
 				}
 			}
 

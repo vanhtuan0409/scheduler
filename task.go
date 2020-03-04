@@ -42,6 +42,7 @@ type InstructionType int
 const (
 	CPUBounded InstructionType = iota
 	IOBounded
+	Exit
 )
 
 func (i InstructionType) String() string {
@@ -50,6 +51,8 @@ func (i InstructionType) String() string {
 		return "CPU Bounded"
 	case IOBounded:
 		return "I/O Bounded"
+	case Exit:
+		return "Exit"
 	default:
 		return "Unknown"
 	}

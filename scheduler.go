@@ -19,8 +19,7 @@ func NewScheduler() *Scheduler {
 func (s *Scheduler) ShortTermSchedule() *Task {
 	top := s.ReadyQueue.Dequeue()
 	if top != nil {
-		top.State = StateRunning
-		log.Printf("[Scheduler] Short-term scheduler load task %s to CPU. Task state changed to %s", top.ShortDescription(), top.State)
+		log.Printf("[Scheduler] Short-term scheduler select task %s for running", top.ShortDescription())
 	}
 	return top
 }
@@ -30,7 +29,6 @@ func (s *Scheduler) LongTermSchedule() {
 		t := s.NewQueue.Dequeue()
 		s.ReadyQueue.Enqueue(t)
 		t.State = StateReady
-		t.ProgCounter = 1
 		log.Printf("[Scheduler] Long-term scheduler moved task %s from %s queue to %s queue. Task state changed to %s\n", t.ShortDescription(), s.NewQueue.Name(), s.ReadyQueue.Name(), t.State)
 	}
 }
