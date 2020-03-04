@@ -66,19 +66,10 @@ schedulingLoop:
 			}
 
 		case <-kern.ShortTermScheduleTimer.C:
-			if kern.IsCPUFree() {
-				log.Println("[Info] Short-term scheduler is woke up. Do scheduling")
-				nextTask := kern.Scheduler.ShortTermSchedule()
-				if nextTask != nil {
-					kern.ContextSwitch(nextTask)
-				}
-			}
+			kern.DoShortTermScheduling()
 
 		case <-kern.LongTermScheduleTimer.C:
-			if !kern.Options.DisableLongTermScheduler {
-				log.Println("[Info] Long-term scheduler is woke up. Do scheduling")
-				kern.Scheduler.LongTermSchedule()
-			}
+			kern.DoLongTermScheduling()
 
 		case <-kern.Exited():
 			break schedulingLoop

@@ -36,6 +36,11 @@ func (c *CPU) Load(t *Task) error {
 	return nil
 }
 
+func (c *CPU) Reset() {
+	c.Instructions = []InstructionType{}
+	c.progCounter = 0
+}
+
 func (c *CPU) Work() bool {
 	instruction := c.fetchNextInstruction()
 

@@ -84,6 +84,10 @@ func (t *Task) TotalDuration() int {
 	return res
 }
 
+func (t *Task) IsFinished() bool {
+	return t.ProgCounter >= t.TotalDuration()
+}
+
 type TaskTable map[int]*Task
 
 func (tab TaskTable) findSmallestAvailablePID() int {
