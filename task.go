@@ -1,4 +1,4 @@
-package main
+package scheduler
 
 const (
 	MaxPID = 4194303 // equal to config of /proc/sys/kernel/pid_max

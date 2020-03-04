@@ -5,10 +5,12 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/vanhtuan0409/scheduler"
 )
 
 func main() {
-	kern := new(Kernel)
+	kern := new(scheduler.Kernel)
 	if err := kern.Initialize(); err != nil {
 		panic(err)
 	}
@@ -17,14 +19,14 @@ func main() {
 	kern.Options.DisableLongTermScheduler = true
 
 	// Add simple task
-	t := &Task{
+	t := &scheduler.Task{
 		Name: "Chrome",
-		SInfo: &SchedulingInformation{
+		SInfo: &scheduler.SchedulingInformation{
 			Priority: 1,
 		},
-		Code: []Instruction{
-			Instruction{
-				Type:     CPUBounded,
+		Code: []scheduler.Instruction{
+			scheduler.Instruction{
+				Type:     scheduler.CPUBounded,
 				Duration: 5,
 			},
 		},
