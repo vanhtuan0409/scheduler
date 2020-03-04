@@ -10,13 +10,16 @@ import (
 )
 
 func main() {
+	// Initialize CPU
+	core1 := scheduler.NewCPU()
+
+	// Initialize Kernel
 	kern := new(scheduler.Kernel)
 	if err := kern.Initialize(); err != nil {
 		panic(err)
 	}
-
-	// Set option for kernel. In real life, this is usually done via sysctl
-	kern.Options.DisableLongTermScheduler = false
+	// Set option for kernel. In real life, this is usually done via `sysctl`
+	kern.Options.DisableLongTermScheduler = true
 
 	// Add simple task
 	t := &scheduler.Task{
@@ -52,8 +55,8 @@ func main() {
 schedulingLoop:
 	for {
 		select {
-		case <-kern.CPUTimer.C:
-			log.Println("[Info] CPU is doing its job")
+		case <-core1.Timer.C:
+			log.Printf("[CPU] %s\n", core1.Report())
 		case <-kern.ShortTermScheduleTimer.C:
 			log.Println("[Info] Short-term scheduler is woke up. Do scheduling")
 		case <-kern.LongTermScheduleTimer.C:

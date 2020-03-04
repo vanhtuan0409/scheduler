@@ -6,18 +6,17 @@ import (
 )
 
 var (
-	ClockTickInterval = time.Second
 	LongTermInterval  = 5 * time.Second
 	ShortTermInterval = 2 * time.Second
 )
 
 type KernelOptions struct {
 	DisableLongTermScheduler bool
+	PreEmptive               bool
 }
 
 type Kernel struct {
 	PTable                 TaskTable
-	CPUTimer               *time.Ticker
 	ShortTermScheduleTimer *time.Ticker
 	LongTermScheduleTimer  *time.Ticker
 	Scheduler              *Scheduler
@@ -32,7 +31,6 @@ func (k *Kernel) Initialize() error {
 		return err
 	}
 	k.Scheduler = NewScheduler()
-	k.CPUTimer = time.NewTicker(ClockTickInterval)
 	k.ShortTermScheduleTimer = time.NewTicker(ShortTermInterval)
 	k.LongTermScheduleTimer = time.NewTicker(LongTermInterval)
 	k.exitChan = make(chan struct{})
