@@ -1,5 +1,9 @@
 package main
 
+import (
+	"log"
+)
+
 func main() {
 	kern := new(Kernel)
 	if err := kern.Initialize(); err != nil {
@@ -19,4 +23,11 @@ func main() {
 		},
 	}
 	kern.NewTask(t)
+
+	for {
+		select {
+		case <-kern.Timer.C:
+			log.Println("Do scheduling")
+		}
+	}
 }

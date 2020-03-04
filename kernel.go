@@ -1,9 +1,17 @@
 package main
 
-import "log"
+import (
+	"log"
+	"time"
+)
+
+var (
+	ClockTickInterval = time.Second
+)
 
 type Kernel struct {
 	PTable TaskTable
+	Timer  *time.Ticker
 }
 
 func (k *Kernel) Initialize() error {
@@ -12,6 +20,7 @@ func (k *Kernel) Initialize() error {
 	if err := k.NewTask(initProcess); err != nil {
 		return err
 	}
+	k.Timer = time.NewTicker(ClockTickInterval)
 	return nil
 }
 
