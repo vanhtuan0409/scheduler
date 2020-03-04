@@ -5,13 +5,6 @@ import (
 	"sync"
 )
 
-type Queue interface {
-	Name() string
-	Enqueue(*Task)
-	Dequeue(*Task)
-	Items() []*Task
-}
-
 type NamedQueue struct {
 	name string
 }
@@ -41,7 +34,16 @@ func (q *FifoQueue) Enqueue(t *Task) {
 	q.queue = append(q.queue, t)
 }
 
-func (q *FifoQueue) Dequeue(t *Task) {
+func (q *FifoQueue) Dequeue() *Task {
+	if len(q.queue) == 0 {
+		return nil
+	}
+	top := q.queue[0]
+	q.queue = q.queue[1:]
+	return top
+}
+
+func (q *FifoQueue) RemoveItem(t *Task) {
 	tIndex := -1
 	for idx, i := range q.queue {
 		if i.PID == t.PID {

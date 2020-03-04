@@ -19,7 +19,7 @@ func main() {
 		panic(err)
 	}
 	// Set option for kernel. In real life, this is usually done via `sysctl`
-	kern.Options.DisableLongTermScheduler = true
+	kern.Options.DisableLongTermScheduler = false
 
 	// Add simple task
 	t := &scheduler.Task{
@@ -59,6 +59,7 @@ schedulingLoop:
 			log.Printf("[CPU] %s\n", core1.Report())
 		case <-kern.ShortTermScheduleTimer.C:
 			log.Println("[Info] Short-term scheduler is woke up. Do scheduling")
+			kern.Scheduler.ShortTermSchedule()
 		case <-kern.LongTermScheduleTimer.C:
 			if !kern.Options.DisableLongTermScheduler {
 				log.Println("[Info] Long-term scheduler is woke up. Do scheduling")
