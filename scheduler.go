@@ -16,12 +16,13 @@ func NewScheduler() *Scheduler {
 	return s
 }
 
-func (s *Scheduler) ShortTermSchedule() {
+func (s *Scheduler) ShortTermSchedule() *Task {
 	top := s.ReadyQueue.Dequeue()
 	if top != nil {
 		top.State = StateRunning
 		log.Printf("[Scheduler] Short-term scheduler load task %s to CPU. Task state changed to %s", top.ShortDescription(), top.State)
 	}
+	return top
 }
 
 func (s *Scheduler) LongTermSchedule() {

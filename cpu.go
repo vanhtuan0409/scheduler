@@ -44,8 +44,6 @@ func (c *CPU) Load(t *Task) error {
 
 func (c *CPU) Work() {
 	c.progCounter += 1
-	if c.progCounter > c.RunningTask.TotalDuration() {
-	}
 }
 
 func (c *CPU) IsFree() bool {
@@ -57,8 +55,9 @@ func (c *CPU) findCurrentInstruction() *Instruction {
 	for _, i := range c.RunningTask.Code {
 		if counter > i.Duration {
 			counter -= i.Duration
+		} else {
+			return &i
 		}
-		return &i
 	}
-	return nil
+	return &c.RunningTask.Code[len(c.RunningTask.Code)-1]
 }

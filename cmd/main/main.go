@@ -30,7 +30,11 @@ func main() {
 		Code: []scheduler.Instruction{
 			scheduler.Instruction{
 				Type:     scheduler.CPUBounded,
-				Duration: 5,
+				Duration: 2,
+			},
+			scheduler.Instruction{
+				Type:     scheduler.IOBounded,
+				Duration: 2,
 			},
 		},
 	}
@@ -57,9 +61,15 @@ schedulingLoop:
 		select {
 		case <-core1.Timer.C:
 			log.Printf("[CPU] %s\n", core1.Report())
+			core1.Work()
 		case <-kern.ShortTermScheduleTimer.C:
-			log.Println("[Info] Short-term scheduler is woke up. Do scheduling")
-			kern.Scheduler.ShortTermSchedule()
+			if core1.IsFree() {
+				log.Println("[Info] Short-term scheduler is woke up. Do scheduling")
+				selected := kern.Scheduler.ShortTermSchedule()
+				if selected != nil {
+					core1.Load(selected)
+				}
+			}
 		case <-kern.LongTermScheduleTimer.C:
 			if !kern.Options.DisableLongTermScheduler {
 				log.Println("[Info] Long-term scheduler is woke up. Do scheduling")
